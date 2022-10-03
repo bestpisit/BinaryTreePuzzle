@@ -267,10 +267,10 @@ public class BST {
                 generateTree();
             }
         }
-        if(Gdx.input.isKeyJustPressed(Input.Keys.SPACE)){
-            randomNode();
-            generateTree();
-        }
+//        if(Gdx.input.isKeyJustPressed(Input.Keys.SPACE)){
+//            randomNode();
+//            generateTree();
+//        }
         if(isClick == 2){
             isClick = 0;
         }

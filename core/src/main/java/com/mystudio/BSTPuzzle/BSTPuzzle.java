@@ -10,6 +10,8 @@ import org.mini2Dx.core.graphics.Graphics;
 import org.mini2Dx.core.graphics.viewport.FitViewport;
 import org.mini2Dx.core.graphics.viewport.Viewport;
 
+import java.util.ArrayList;
+
 public class BSTPuzzle extends BasicGame {
 	public static final String GAME_IDENTIFIER = "com.mystudio.BSTPuzzle";
     public static final float GAME_WIDTH = 640;
@@ -25,13 +27,20 @@ public class BSTPuzzle extends BasicGame {
     float yPos = 0f;
     Player player;
     PlayerTexture playerTexture;
+    public static ArrayList<Wall> walls = new ArrayList<Wall>();
+    public static final float GRV = 0.93f;
 	@Override
     public void initialise() {
         texture = new Texture("mini2Dx.png");
         Background = new Texture("Background/Green.png");
         fitViewport = new FitViewport(GAME_WIDTH, GAME_HEIGHT);
         playerTexture = new PlayerTexture();
-        player = new Player(playerTexture);
+        player = new Player(playerTexture,100,0);
+        //create wall
+        for(int i=0;i<GAME_WIDTH/32;i++){
+            Wall w = new Wall(i*32,GAME_HEIGHT-16*(i+1));
+            walls.add(w);
+        }
     }
     
     @Override
@@ -65,6 +74,9 @@ public class BSTPuzzle extends BasicGame {
         }
         bst.render(g);
         player.render(g);
+        for(int i=0;i<walls.size();i++){
+            walls.get(i).render(g);
+        }
         //g.drawTexture(texture, 0f, 0f);
     }
 }
