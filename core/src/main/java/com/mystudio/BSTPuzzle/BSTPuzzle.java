@@ -34,12 +34,29 @@ public class BSTPuzzle extends BasicGame {
         texture = new Texture("mini2Dx.png");
         Background = new Texture("Background/Green.png");
         fitViewport = new FitViewport(GAME_WIDTH, GAME_HEIGHT);
-        playerTexture = new PlayerTexture();
+        playerTexture = new PlayerTexture("Main Characters/Ninja Frog/Idle (32x32).png");
         player = new Player(playerTexture,100,0);
         //create wall
-        for(int i=0;i<GAME_WIDTH/32;i++){
-            Wall w = new Wall(i*32,GAME_HEIGHT-16*(i+1));
+//        for(int i=0;i<GAME_WIDTH/64;i++){
+//            Wall w = new Wall(i*32,GAME_HEIGHT-16*(i+1));
+//            walls.add(w);
+//        }
+        for(int i=0;i<Math.round(GAME_WIDTH/64);i++){
+            Wall w = new Wall(GAME_WIDTH/2+i*32,GAME_HEIGHT-16*(i+1));
             walls.add(w);
+        }
+        //create border
+        for(int i=0;i<GAME_WIDTH/32;i++){
+            Wall w = new Wall(i*32,-33);
+            Wall w1 = new Wall(i*32,GAME_HEIGHT);
+            walls.add(w);
+            walls.add(w1);
+        }
+        for(int j=0;j<GAME_HEIGHT/32;j++){
+            Wall w = new Wall(-33,j*32);
+            Wall w1 = new Wall(GAME_WIDTH,j*32);
+            walls.add(w);
+            walls.add(w1);
         }
     }
     
