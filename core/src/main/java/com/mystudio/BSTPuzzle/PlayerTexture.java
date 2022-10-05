@@ -14,9 +14,9 @@ public class PlayerTexture {
 
     SpriteSheet playerSpriteSheet;
     Animation playerAnimation = new Animation();
-    public PlayerTexture(String path){
+    public PlayerTexture(String path,int w,int h){
         spriteTexture = new Texture(path);
-        playerSpriteSheet = new SpriteSheet(spriteTexture,32,32);
+        playerSpriteSheet = new SpriteSheet(spriteTexture,w,h);
         for(int i=0;i<playerSpriteSheet.getTotalFrames();i++){
             playerAnimation.addFrame(playerSpriteSheet.getSprite(i),frameDuration);
         }

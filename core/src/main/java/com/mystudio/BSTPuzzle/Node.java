@@ -22,7 +22,8 @@ public class Node {
     public boolean isSelected = false;
     public boolean isDrag = false;
     public boolean isPass = false;
-    public Node(int v,float x,float y,Color color,float radius){
+    public String type = "";
+    public Node(int v,float x,float y,Color color,float radius,String type){
         this.value = v;
         this.x = x;
         this.y = y;
@@ -30,6 +31,7 @@ public class Node {
         this.radius = radius;
         this.fX = x;
         this.fY = y;
+        this.type = type;
     }
     public void update(){
 
@@ -39,27 +41,108 @@ public class Node {
         this.isPass = true;
         if(this.left!=null){
             g.setLineHeight(5);
-            int leftMax = checkNodeL(this.left);
-            g.drawString(String.valueOf(leftMax),this.x-32,this.y);
-            if(leftMax>this.value){
-                g.setColor(Color.RED);
-                this.isPass = false;
+            if(this.type=="BST"){
+                int leftMax = checkNodeL(this.left);
+                g.drawString(String.valueOf(leftMax),this.x-32,this.y);
+                if(leftMax>this.value){
+                    g.setColor(Color.RED);
+                    this.isPass = false;
+                }
+                else{
+                    g.setColor(Color.GREEN);
+                }
             }
-            else{
-                g.setColor(Color.GREEN);
+            else if(this.type=="BT"){
+                if(this.left.getValue()>this.getValue()){
+                    g.setColor(Color.RED);
+                    this.isPass = false;
+                }
+                else{
+                    g.setColor(Color.GREEN);
+                }
+            }
+            else if(this.type=="MAXHEAP"){
+                if(this.left.getValue()>this.value){
+                    g.setColor(Color.RED);
+                    this.isPass = false;
+                }
+                else{
+                    g.setColor(Color.GREEN);
+                }
+                if(this.right != null){
+                    if(this.left.getValue()>this.right.getValue()){
+                        g.setColor(Color.RED);
+                        this.isPass = false;
+                    }
+                }
+            }
+            else if(this.type=="MINHEAP"){
+                if(this.left.getValue()<this.value){
+                    g.setColor(Color.RED);
+                    this.isPass = false;
+                }
+                else{
+                    g.setColor(Color.GREEN);
+                }
+                if(this.right != null){
+                    if(this.left.getValue()>this.right.getValue()){
+                        g.setColor(Color.RED);
+                        this.isPass = false;
+                    }
+                }
             }
             g.drawLineSegment(this.x,this.y,this.left.getX(),this.left.getY());
         }
         if(this.right!=null){
             g.setLineHeight(5);
-            int rightMax = checkNodeR(this.right);
-            g.drawString(String.valueOf(rightMax),this.x+32,this.y);
-            if(rightMax<this.value){
-                g.setColor(Color.RED);
-                this.isPass = false;
+            if(this.type=="BST") {
+                int rightMax = checkNodeR(this.right);
+                g.drawString(String.valueOf(rightMax), this.x + 32, this.y);
+                if (rightMax < this.value) {
+                    g.setColor(Color.RED);
+                    this.isPass = false;
+                } else {
+                    g.setColor(Color.GREEN);
+                }
             }
-            else{
-                g.setColor(Color.GREEN);
+            else if(this.type=="BT"){
+                if(this.right.getValue()<this.getValue()){
+                    g.setColor(Color.RED);
+                    this.isPass = false;
+                }
+                else{
+                    g.setColor(Color.GREEN);
+                }
+            }
+            else if(this.type=="MAXHEAP"){
+                if(this.right.getValue()>this.value){
+                    g.setColor(Color.RED);
+                    this.isPass = false;
+                }
+                else{
+                    g.setColor(Color.GREEN);
+                }
+                if(this.left != null){
+                    if(this.left.getValue()>this.right.getValue()){
+                        g.setColor(Color.RED);
+                        this.isPass = false;
+                    }
+                }
+            }
+            else if(this.type=="MINHEAP"){
+                if(this.right.getValue()<this.value){
+                    g.setColor(Color.RED);
+                    this.isPass = false;
+                }
+                else{
+                    g.setColor(Color.GREEN);
+                }
+                if(this.left != null){
+                    if(this.left.getValue()>this.right.getValue()){
+                        g.setColor(Color.RED);
+                        this.isPass = false;
+                    }
+                }
             }
             g.drawLineSegment(this.x,this.y,this.right.getX(),this.right.getY());
         }

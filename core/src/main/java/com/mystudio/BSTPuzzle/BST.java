@@ -11,8 +11,8 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Color;
 import org.mini2Dx.core.Mdx;
 import org.mini2Dx.core.graphics.Graphics;
-import static com.mystudio.BSTPuzzle.BSTPuzzle.GAME_WIDTH;
-import static com.mystudio.BSTPuzzle.BSTPuzzle.GAME_HEIGHT;
+
+import static com.mystudio.BSTPuzzle.BSTPuzzle.*;
 
 public class BST {
     private Node root = null;
@@ -23,12 +23,16 @@ public class BST {
     private ArrayList<Node> nodes = new ArrayList<Node>();
     Random rand = new Random(new Date().getTime());
     private int numberNodes = 0;
-    public BST(){//default 5 nodes
-        this(5);
-    }
     private Node selectN1 = null;
     private Node selectN2 = null;
-    public BST(int n){
+    boolean isDead = false;
+    PlayerTexture ePointer = new PlayerTexture("point.png",64,64);
+    String type = "BT";
+    public BST(int n,Enemy e,String type){
+        this.target = e;
+        this.target.myBST = this;
+        this.type = type;
+        ePointer.playerAnimation.setLooping(false);
         colorList.add(Color.BLUE);
         colorList.add(Color.BLACK);
         colorList.add(Color.GREEN);
@@ -50,7 +54,7 @@ public class BST {
             randomNumber.add(r_number);
         }
         for(int i=0;i<n;i++){
-            Node node = new Node(randomNumber.get(i),nRadius*2*(i)+64,32+300,colorList.get(rand.nextInt(colorList.size())),nRadius);
+            Node node = new Node(randomNumber.get(i),nRadius*2*(i)+64,32+300,colorList.get(rand.nextInt(colorList.size())),nRadius,this.type);
             nodes.add(node);
         }
         randomNode();
@@ -153,8 +157,9 @@ public class BST {
     private int passTimer = 0;
     private boolean pass = false;
     private  Node nowNode = null;
+    public Enemy target = null;
     public void update(){
-        if(selectN1 != null && selectN2 != null && pass == false){
+        if(selectN1 != null && selectN2 != null && pass == false && !isDead){
             if(selectN1.left == selectN2 || selectN1.right == selectN2 || selectN2.left == selectN1 || selectN2.right == selectN1){
                 int holdv = selectN1.getValue();
                 Color holdc = selectN1.getColor();
@@ -174,7 +179,7 @@ public class BST {
                 selectN2 = null;
             }
         }
-        if(nowNode == null && pass == false){
+        if(nowNode == null && pass == false && !isDead){
             for(int i=0;i<nodes.size();i++) {
                 Node now = nodes.get(i);
                 if(now.isHover && Gdx.input.isButtonPressed(Input.Buttons.LEFT)){
@@ -228,12 +233,25 @@ public class BST {
                 pass = true;
             }
         }
-        if(pass == true){
-            //System.out.println(passTimer);
-            if(passTimer < 20*5){
+        if(pass == true || isDead){
+            //dead boom!
+            if(this.target!=null){
+                this.target.isDead = true;
+            }
+            if(isDead){
+                for(int i=0;i<nodes.size();i++){
+                    nodes.get(i).setColor(Color.RED);
+                }
+            }
+            if(passTimer < 20*1){
                 passTimer++;
             }
             else{
+                confetti(root);
+                confetti(root);
+                if(pass){
+                    player.life++;
+                }
                 pass = false;
                 passTimer = 0;
                 selectN1 = null;
@@ -260,11 +278,15 @@ public class BST {
                     randomNumber.add(r_number);
                 }
                 for(int i=0;i<numberNodes;i++){
-                    Node node = new Node(randomNumber.get(i),nRadius*2*(i)+64,32+300,colorList.get(rand.nextInt(colorList.size())),nRadius);
+                    Node node = new Node(randomNumber.get(i),nRadius*2*(i)+64,32+300,colorList.get(rand.nextInt(colorList.size())),nRadius,this.type);
                     nodes.add(node);
                 }
-                randomNode();
-                generateTree();
+                //create confetti
+                bstS.remove(bst);
+                bst = null;
+                target = null;
+                //randomNode();
+                //generateTree();
             }
         }
 //        if(Gdx.input.isKeyJustPressed(Input.Keys.SPACE)){
@@ -273,6 +295,20 @@ public class BST {
 //        }
         if(isClick == 2){
             isClick = 0;
+        }
+    }
+    void confetti(Node now){
+        if(now != null){
+            if(now.left != null){
+                float rotation = (float) ((float) Math.atan((now.getX()-now.left.getX())/(now.getY()-now.left.getY()))*180/Math.PI);
+                confettis.add(new Confetti(Math.min(now.getX(),now.left.getX())-10,Math.min(now.getY(),now.left.getY()),rotation));
+                confetti(now.left);
+            }
+            if(now.right != null){
+                float rotation = (float) ((float) Math.atan((now.getX()-now.right.getX())/(now.getY()-now.right.getY()))*180/Math.PI);
+                confettis.add(new Confetti(Math.min(now.getX(),now.right.getX())-10,Math.min(now.getY(),now.right.getY()),rotation));
+                confetti(now.right);
+            }
         }
     }
     public void render(Graphics g){
@@ -292,6 +328,10 @@ public class BST {
         }
         else if(isClick == 2){
             g.drawString("2",100,100);
+        }
+        if(target!=null){
+            ePointer.playerAnimation.setRotation(180);
+            ePointer.playerAnimation.draw(g, target.x-32, target.y- target.height-32-24);
         }
     }
 }
