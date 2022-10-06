@@ -7,6 +7,8 @@ import org.mini2Dx.core.graphics.Animation;
 import org.mini2Dx.core.graphics.Graphics;
 import org.mini2Dx.core.graphics.SpriteSheet;
 
+import java.awt.*;
+
 import static com.mystudio.BSTPuzzle.BSTPuzzle.*;
 
 public class Enemy {
@@ -45,13 +47,15 @@ public class Enemy {
         eDisappear.playerAnimation.setLooping(true);
     }
     public void update(float delta){
-        if(isDead && deadC>=3){
-            this.playerTexture.playerAnimation.update(delta/5);
+        if(isDead && deadC>=1){
+            this.playerTexture.playerAnimation.update(delta/3);
         }
         else{
             this.playerTexture.playerAnimation.update(delta/2);
         }
-        boolean atPlayer = (Math.abs(this.x- player.x)<16 && Math.abs(this.y- player.y)<16);
+        Rectangle rthis = new Rectangle(this.x-this.width/2,this.y-this.height,this.width,this.height);
+        Rectangle rPlayer = new Rectangle(player.getX()-12,player.getY()+32,24,32);
+        boolean atPlayer = rthis.intersects(rPlayer);
         boolean jump = false;
         float move = 0f;
         if(!atPlayer){
@@ -66,9 +70,11 @@ public class Enemy {
                 }
                 if(this.x < player.x){
                     player.xScale = true;
+                    player.ksp = 10;
                 }
                 else{
                     player.xScale = false;
+                    player.ksp = -10;
                 }
                 player.life--;
                 player.isDead = true;
@@ -99,7 +105,6 @@ public class Enemy {
             hsp = 0;
             jump = false;
         }
-        hsp=0;
         x += hsp;
         if(jump && collideWall(0,1)){
             this.vsp = -12;
@@ -128,6 +133,7 @@ public class Enemy {
     int deadC = 0;
     public void render(Graphics g){
         //g.drawCircle(this.x,this.y,5);
+        //g.drawRect(this.x-this.width/2,this.y-this.height,this.width,this.height);
         if(isDead){
             if(deadTick<20){
                 deadTick++;
@@ -138,7 +144,7 @@ public class Enemy {
                 this.playerTexture = eIdle;
             }
             else{
-                if(deadC<3){
+                if(deadC<1){
                     deadC++;
                     deadTick = 0;
                 }

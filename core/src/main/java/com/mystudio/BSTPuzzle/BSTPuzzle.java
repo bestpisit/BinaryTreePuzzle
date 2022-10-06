@@ -1,5 +1,6 @@
 package com.mystudio.BSTPuzzle;
 
+import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Color;
@@ -36,6 +37,8 @@ public class BSTPuzzle extends BasicGame {
     public static final float GRV = 0.93f;
     Checkpoint startPoint;
     public static Goal goal;
+    public static int Score = 0;
+    public static int GameState = 0;
 	@Override
     public void initialise() {
         texture = new Texture("mini2Dx.png");
@@ -69,33 +72,79 @@ public class BSTPuzzle extends BasicGame {
         walls.add(new Wall(GAME_WIDTH/2,GAME_HEIGHT-32-16));
         walls.add(new Wall(GAME_WIDTH/2-32,GAME_HEIGHT-32-16));
         walls.add(new Wall(GAME_WIDTH/2-32-32,GAME_HEIGHT-32-16));
-        Enemy ee = new Enemy(new Random().nextInt((int) GAME_WIDTH-128)+32,0,"RockSM");
-        enemies.add(ee);
-        BST nB = new BST(15,ee,"MINHEAP");
-        bstS.add(nB);
+//        Enemy ee = new Enemy(new Random().nextInt((int) GAME_WIDTH-128)+32,0,"RockSM");
+//        enemies.add(ee);
+//        BST nB = new BST(5,ee,"MINHEAP");
+//        bstS.add(nB);
     }
-    
+    String[] TreeType = {"BT","BST","MINHEAP","MAXHEAP"};
+    String[] EnemyType = {"Bunny","RockSM"};
     @Override
     public void update(float delta) {
-        if(bst != null){
-            bst.update();
+        if(GameState == 0){
+            if(Gdx.input.isKeyJustPressed(Input.Keys.SPACE)){
+                GameState = 1;
+            }
         }
-        else{
-            if(bstS.size()>0){
-                BST getB = bstS.get(new Random().nextInt(bstS.size()));
-                bst = getB;
+        else if(GameState == 1){
+            if(player.life>0){
+                Score++;
             }
             else{
-                //create awa
-//                Enemy ee = new Enemy(new Random().nextInt((int) GAME_WIDTH-128)+32,0,"RockSM");
-//                Enemy ee1 = new Enemy(new Random().nextInt((int) GAME_WIDTH-128)+32,0,"RockSM");
-//                BST bRedun = new BST(5,ee1);
-//                enemies.add(ee);
-//                enemies.add(ee1);
-//                bstS.add(bRedun);
-//                BST nB = new BST(5,ee);
-//                bstS.add(nB);
-//                bst = nB;
+                GameState = -1;
+            }
+            if(bst != null){
+                bst.update();
+            }
+            else{
+                if(bstS.size()>0){
+                    BST getB = bstS.get(new Random().nextInt(bstS.size()));
+                    bst = getB;
+                }
+                else{
+                    //create awa
+                    int number = 1 + new Random().nextInt(Math.round(Score/(20*50))+1);
+                    for(int i=0;i<number;i++){
+                        String tree = TreeType[new Random().nextInt(TreeType.length)];
+                        String eType = EnemyType[new Random().nextInt(EnemyType.length)];
+                        boolean location = new Random().nextBoolean();
+                        float posL = 32;
+                        if(location){
+                            posL = GAME_WIDTH-64;
+                        }
+                        if(player.x < 100){
+                            posL = GAME_WIDTH-64;
+                        }
+                        if(player.x > GAME_WIDTH-100){
+                            posL = 32;
+                        }
+                        Random rand = new Random();
+                        Enemy ee = new Enemy(posL+ rand.nextInt(64+32*new Random().nextInt(Math.round(Score/(20*50))+1)),-1*rand.nextInt(200),eType);
+                        enemies.add(ee);
+                        BST nB = new BST(3+rand.nextInt(player.killCount+1),ee,tree);
+                        bstS.add(nB);
+                    }
+                }
+            }
+            if(Gdx.input.isKeyJustPressed(Input.Keys.RIGHT)){
+                if(bstS.size()>1){
+                    int ind = bstS.indexOf(bst);
+                    if(ind!=-1){
+                        if(ind>=bstS.size()-1){
+                            bst = bstS.get(0);
+                        }
+                        else{
+                            bst = bstS.get(ind+1);
+                        }
+                    }
+                }
+            }
+        }
+        else if(GameState == -1){
+            if(Gdx.input.isKeyJustPressed(Input.Keys.SPACE)){
+                Score = 0;
+                GameState = 1;
+                player = new Player(playerTexture,GAME_WIDTH/2,GAME_HEIGHT/2);
             }
         }
         if(xPos<64){
@@ -108,24 +157,11 @@ public class BSTPuzzle extends BasicGame {
         }
         player.update(delta);
         goal.update(delta);
-        for(int i=0;i<enemies.size();i++){
-            enemies.get(i).update(delta);
-        }
         for(int i=0;i<confettis.size();i++){
             confettis.get(i).update(delta);
         }
-        if(Gdx.input.isKeyJustPressed(Input.Keys.RIGHT)){
-            if(bstS.size()>1){
-                int ind = bstS.indexOf(bst);
-                if(ind!=-1){
-                    if(ind>=bstS.size()-1){
-                        bst = bstS.get(0);
-                    }
-                    else{
-                        bst = bstS.get(ind+1);
-                    }
-                }
-            }
+        for(int i=0;i<enemies.size();i++){
+            enemies.get(i).update(delta);
         }
     }
     
@@ -133,7 +169,6 @@ public class BSTPuzzle extends BasicGame {
     public void interpolate(float alpha) {
     
     }
-    
     @Override
     public void render(Graphics g) {
         fitViewport.apply(g);
@@ -142,8 +177,18 @@ public class BSTPuzzle extends BasicGame {
                 g.drawTexture(Background, 64*i+xPos, 64*j+yPos);
             }
         }
-        if(bst != null){
-            bst.render(g);
+        if(GameState==0){
+            g.drawString("Press Space To Play",GAME_WIDTH/2,GAME_HEIGHT/2);
+        }
+        else if(GameState==1){
+            g.drawString(String.valueOf((int)Score/20),0,64);
+            if(bst != null){
+                bst.render(g);
+            }
+        }
+        else if(GameState==-1){
+            g.drawString("Press Space To Play Again",GAME_WIDTH/2,GAME_HEIGHT/2);
+            g.drawString("Your Score "+String.valueOf((int)Score/20),GAME_WIDTH/2,GAME_HEIGHT/2-32);
         }
         for(int i=0;i<walls.size();i++){
             walls.get(i).render(g);
@@ -156,7 +201,6 @@ public class BSTPuzzle extends BasicGame {
         for(int i=0;i<confettis.size();i++){
             confettis.get(i).render(g);
         }
-        //g.drawTexture(texture, 0f, 0f);
     }
     public static void SpriteCollection(Enemy e){
         if(e.type == "Bunny"){

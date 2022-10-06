@@ -8,6 +8,8 @@ import org.mini2Dx.core.geom.Point;
 import org.mini2Dx.core.geom.Rectangle;
 import org.mini2Dx.core.graphics.Graphics;
 
+import java.util.Random;
+
 import static com.mystudio.BSTPuzzle.BSTPuzzle.*;
 import static com.mystudio.BSTPuzzle.BSTPuzzle.enemies;
 
@@ -26,12 +28,14 @@ public class Player {
     public boolean isDead = false;
     boolean isAppear = true;
     public int life = 3;
+    public float ksp = 0;
     PlayerTexture playerRun = new PlayerTexture("Main Characters/Ninja Frog/Run (32x32).png",32,32);
     PlayerTexture playerIdle = new PlayerTexture("Main Characters/Ninja Frog/Idle (32x32).png",32,32);
     PlayerTexture playerJump = new PlayerTexture("Main Characters/Ninja Frog/Jump (32x32).png",32,32);
     PlayerTexture playerFall = new PlayerTexture("Main Characters/Ninja Frog/Fall (32x32).png",32,32);
     PlayerTexture playerHit = new PlayerTexture("Main Characters/Ninja Frog/Hit (32x32).png",32,32);
     PlayerTexture playerAppear = new PlayerTexture("Main Characters/Appearing (96x96).png",96,96);
+    public int killCount = 0;
     public Player(PlayerTexture playerTexture,float x,float y) {
         this.playerTexture = playerTexture;
         playerTexture.playerAnimation.setLooping(true);
@@ -41,7 +45,7 @@ public class Player {
         this.x = x;
         this.y = y;
     }
-
+    Random rand = new Random();
     Enemy nearestEnemy(){
         float nearest = -1;
         Enemy ee = null;
@@ -49,14 +53,16 @@ public class Player {
             Enemy e = enemies.get(i);
             if(!e.isDead){
                 float des = (float) Math.sqrt(Math.pow(this.x-e.x,2)+Math.pow(this.y-e.y,2));
-                if(nearest==-1){
-                    nearest = des;
-                    ee = e;
-                }
-                else if(nearest > des){
-                    nearest = des;
-                    ee = e;
-                }
+//                if(des+hsp>100 && des+hsp < 120){
+                    if(nearest==-1){
+                        nearest = des;
+                        ee = e;
+                    }
+                    else if(nearest > des){
+                        nearest = des;
+                        ee = e;
+                    }
+                //}
             }
         }
         return ee;
@@ -87,6 +93,10 @@ public class Player {
             }
         }
         hsp = move * this.wsp;
+        if(life<=0 || isDead){
+            this.hsp = 0;
+        }
+        hsp += ksp;
         if(collideWall(this.hsp,0)){
             while(!collideWall(Math.abs(hsp)/hsp,0)){
                 this.x += + Math.abs(hsp)/hsp;
@@ -97,11 +107,14 @@ public class Player {
                 jump = true;
             }
         }
+        if(ksp != 0){
+            ksp -= 0.05f*ksp;
+        }
 //        if(atDestinationX && (Math.abs(this.y+32+1-this.destY)>this.checkH)){
 //            jump = true;
 //        }
         if(jump && collideWall(0,1) && (life>0) && !isDead){
-            this.vsp = -10;
+            this.vsp = -20;
         }
         vsp += GRV;
         if(collideWall(0,this.vsp)){
@@ -109,9 +122,6 @@ public class Player {
                 this.y += + Math.abs(vsp)/vsp;
             }
             vsp = 0;
-        }
-        if(life<=0 || isDead){
-            this.hsp = 0;
         }
         if(hsp>0){
             xScale = false;
@@ -150,6 +160,12 @@ public class Player {
         }
         return false;
     }
+    float getX(){
+        return this.x;
+    }
+    float getY(){
+        return this.y;
+    }
     public void render(Graphics g){
         float rX = GAME_WIDTH/g.getWindowWidth();
         float rY = GAME_HEIGHT/g.getWindowHeight();
@@ -168,7 +184,7 @@ public class Player {
         //g.setColor(Color.BROWN);
         //g.drawCircle(this.destX,this.destY,10);
         g.drawString(String.valueOf(this.life),this.x,this.y);
-        //g.fillRect(this.destX-16,this.y+32+1,checkW,32);
+        //g.drawRect(this.x-12,this.y+32,24,32);
         playerTexture.playerAnimation.setFlipX(xScale);
         if(life<=0){
             playerTexture.playerAnimation.setRotation(90);
@@ -179,7 +195,7 @@ public class Player {
         else{
             if(isDead){
                 playerTexture = playerHit;
-                if(playerTexture.playerAnimation.getCurrentFrameIndex()<=playerTexture.playerAnimation.getNumberOfFrames()-1){
+                if(playerTexture.playerAnimation.getCurrentFrame()==playerTexture.playerAnimation.getFrame(playerTexture.playerAnimation.getNumberOfFrames()-1)){
                     isDead = false;
                 }
                 playerTexture.playerAnimation.setRotation(0);

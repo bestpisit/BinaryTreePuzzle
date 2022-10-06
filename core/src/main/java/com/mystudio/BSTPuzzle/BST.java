@@ -251,6 +251,7 @@ public class BST {
                 confetti(root);
                 if(pass){
                     player.life++;
+                    player.killCount++;
                 }
                 pass = false;
                 passTimer = 0;
@@ -312,6 +313,7 @@ public class BST {
         }
     }
     public void render(Graphics g){
+        g.drawString(this.type,0,32);
         for(int i=0;i<nodes.size();i++){
             Node now = nodes.get(i);
             now.renderLine(g);
@@ -320,15 +322,15 @@ public class BST {
             Node now = nodes.get(i);
             now.render(g);
         }
-        if(isClick == 0){
-            g.drawString("0",100,100);
-        }
-        else if(isClick == 1){
-            g.drawString("1",100,100);
-        }
-        else if(isClick == 2){
-            g.drawString("2",100,100);
-        }
+//        if(isClick == 0){
+//            g.drawString("0",100,100);
+//        }
+//        else if(isClick == 1){
+//            g.drawString("1",100,100);
+//        }
+//        else if(isClick == 2){
+//            g.drawString("2",100,100);
+//        }
         if(target!=null){
             ePointer.playerAnimation.setRotation(180);
             ePointer.playerAnimation.draw(g, target.x-32, target.y- target.height-32-24);
