@@ -97,24 +97,33 @@ public class Player {
             this.hsp = 0;
         }
         hsp += ksp;
+        float preHsp = hsp;
+        boolean collide = false;
         if(collideWall(this.hsp,0)){
+            collide = true;
             while(!collideWall(Math.abs(hsp)/hsp,0)){
-                this.x += + Math.abs(hsp)/hsp;
+                this.x += Math.abs(hsp)/hsp;
             }
             hsp = 0;
+            if(Math.abs(ksp) > 5f){
+                ksp *= -1;
+            }
             //check dest
             if(!getReckt){
                 jump = true;
             }
         }
-        if(ksp != 0){
+        if(Math.abs(ksp) > 3f){
             ksp -= 0.05f*ksp;
+        }
+        else{
+            ksp = 0;
         }
 //        if(atDestinationX && (Math.abs(this.y+32+1-this.destY)>this.checkH)){
 //            jump = true;
 //        }
         if(jump && collideWall(0,1) && (life>0) && !isDead){
-            this.vsp = -20;
+            this.vsp -= 15;
         }
         vsp += GRV;
         if(collideWall(0,this.vsp)){
@@ -142,6 +151,22 @@ public class Player {
         else if(vsp<0){
             this.playerTexture = playerFall;
         }
+        if(vsp != 0){
+            if(ksp != 0){
+                if(xScale == true){
+                    pRotation -= Math.signum(hsp)*hsp*2;
+                }
+                else{
+                    pRotation += Math.signum(hsp)*hsp*2;
+                }
+            }
+            else{
+                pRotation = 0;
+            }
+        }
+        else{
+            pRotation = 0;
+        }
         if(isAppear){
             hsp=0;
             vsp=0;
@@ -149,6 +174,7 @@ public class Player {
         x += hsp;
         this.y += vsp;
     }
+    float pRotation = 0;
     boolean collideWall(float hsp,float vsp){
         Rectangle sRect = new Rectangle(this.x-12+hsp,this.y+32+vsp,24,32);
         for(int i=0;i<walls.size();i++){
@@ -195,10 +221,10 @@ public class Player {
         else{
             if(isDead){
                 playerTexture = playerHit;
-                if(playerTexture.playerAnimation.getCurrentFrame()==playerTexture.playerAnimation.getFrame(playerTexture.playerAnimation.getNumberOfFrames()-1)){
+                if(playerTexture.playerAnimation.getCurrentFrameIndex()>=playerTexture.playerAnimation.getNumberOfFrames()-1){
                     isDead = false;
                 }
-                playerTexture.playerAnimation.setRotation(0);
+                playerTexture.playerAnimation.setRotation(pRotation);
                 playerTexture.playerAnimation.draw(g,this.x-16,this.y+32+1);
             }
             else if(isAppear){
@@ -208,12 +234,12 @@ public class Player {
                     playerTexture = playerIdle;
                 }
                 else{
-                    playerTexture.playerAnimation.setRotation(0);
+                    playerTexture.playerAnimation.setRotation(pRotation);
                     playerTexture.playerAnimation.draw(g,this.x-48,this.y-32);
                 }
             }
             else{
-                playerTexture.playerAnimation.setRotation(0);
+                playerTexture.playerAnimation.setRotation(pRotation);
                 playerTexture.playerAnimation.setLooping(true);
                 playerTexture.playerAnimation.draw(g,this.x-16,this.y+32+1);
             }

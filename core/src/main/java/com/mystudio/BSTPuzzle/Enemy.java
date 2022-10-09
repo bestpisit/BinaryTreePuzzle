@@ -68,6 +68,7 @@ public class Enemy {
                 if(myBST != bst){
                     bstS.remove(myBST);
                 }
+                player.vsp -= 10;
                 if(this.x < player.x){
                     player.xScale = true;
                     player.ksp = 10;
