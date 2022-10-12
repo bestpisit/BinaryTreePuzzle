@@ -55,6 +55,15 @@ public class BSTPuzzle extends BasicGame {
     ArrayList<Music> playSounds;
     Music playSound;
     ArrayList<Music> alreadySounds;
+    ArrayList<Texture> numberUI = new ArrayList<Texture>();
+    Texture gameOverTexture;
+    Texture getReadyTexture;
+    Texture highscoreTexture;
+    private static final String GAME_OVER_TEXT_LOCATION = "UserInterface/textGameOver.png";
+    private static final String PRESS_SPACE_TEXT_LOCATION = "UserInterface/textPressSpace.png";
+    private static final String HIGHSCORE_TEXT_LOCATION = "UserInterface/textHighscore.png";
+
+    PlayerData playerdata = new PlayerData();
     public void chooseSound(){
         if(playSounds.size()>0){
             playSound = playSounds.get(new Random(new Date().getTime()).nextInt(playSounds.size()));
@@ -73,12 +82,19 @@ public class BSTPuzzle extends BasicGame {
     }
 	@Override
     public void initialise() {
+        gameOverTexture = new Texture(Gdx.files.internal(GAME_OVER_TEXT_LOCATION));
+        getReadyTexture = new Texture(Gdx.files.internal(PRESS_SPACE_TEXT_LOCATION));
+        highscoreTexture = new Texture(Gdx.files.internal(HIGHSCORE_TEXT_LOCATION));
+        playerdata.loadPlayerData();
+        for(int i=0;i<10;i++){
+            numberUI.add(new Texture("UserInterface/Numbers/number"+String.valueOf(i)+".png"));
+        }
         texture = new Texture("mini2Dx.png");
         Background = new Texture("Background/Green.png");
         fitViewport = new FitViewport(GAME_WIDTH, GAME_HEIGHT);
         playerTexture = new PlayerTexture("Main Characters/Ninja Frog/Idle (32x32).png",32,32);
         player = new Player(playerTexture,GAME_WIDTH/2,GAME_HEIGHT/2);
-        goal = new Goal(GAME_WIDTH/2-32,GAME_HEIGHT-32-15);
+        goal = new Goal(GAME_WIDTH/2-32,GAME_HEIGHT-64);
         gameIntro = new PlayerTexture("Intro/BST.png",500,500);
         logoMain = new PlayerTexture("Intro/LogoPNG.png",500,500);
         introSound = Gdx.audio.newMusic(Gdx.files.internal("Intro/IntroMusic.mp3"));
@@ -98,35 +114,40 @@ public class BSTPuzzle extends BasicGame {
 //            Wall w = new Wall(i*32,GAME_HEIGHT-16*(i+1));
 //            walls.add(w);
 //        }
-        for(int i=0;i<Math.round(GAME_WIDTH/32);i++){
-            Wall w = new Wall(i*32,GAME_HEIGHT-32);
+        for(int i=-10;i<Math.round(GAME_WIDTH/32)+10;i++){
+            Wall www = new Wall(i*32,GAME_HEIGHT-32,"floor");
+            Wall ww = new Wall(i*32,GAME_HEIGHT-48,"floor");
+            Wall w = new Wall(i*32,GAME_HEIGHT-64,"floor");
+            walls.add(www);
+            walls.add(ww);
             walls.add(w);
         }
         //create border
-        for(int i=0;i<GAME_WIDTH/32;i++){
-            //Wall w = new Wall(i*32,-33);
-            Wall w1 = new Wall(i*32,GAME_HEIGHT);
-            //walls.add(w);
-            walls.add(w1);
-        }
-        for(int j=0;j<GAME_HEIGHT/32;j++){
-            Wall w = new Wall(-33,j*32);
-            Wall w1 = new Wall(GAME_WIDTH,j*32);
-            walls.add(w);
-            walls.add(w1);
-        }
-        walls.add(new Wall(GAME_WIDTH/2,GAME_HEIGHT-32-16));
-        walls.add(new Wall(GAME_WIDTH/2-32,GAME_HEIGHT-32-16));
-        walls.add(new Wall(GAME_WIDTH/2-32-32,GAME_HEIGHT-32-16));
+//        for(int i=0;i<GAME_WIDTH/32;i++){
+//            //Wall w = new Wall(i*32,-33);
+//            Wall w1 = new Wall(i*32,GAME_HEIGHT);
+//            //walls.add(w);
+//            walls.add(w1);
+//        }
+//        for(int j=0;j<GAME_HEIGHT/32;j++){
+//            Wall w = new Wall(-33,j*32);
+//            Wall w1 = new Wall(GAME_WIDTH,j*32);
+//            walls.add(w);
+//            walls.add(w1);
+//        }
+//        walls.add(new Wall(GAME_WIDTH/2,GAME_HEIGHT-32-16));
+//        walls.add(new Wall(GAME_WIDTH/2-32,GAME_HEIGHT-32-16));
+//        walls.add(new Wall(GAME_WIDTH/2-32-32,GAME_HEIGHT-32-16));
 //        Enemy ee = new Enemy(new Random().nextInt((int) GAME_WIDTH-128)+32,0,"RockSM");
 //        enemies.add(ee);
 //        BST nB = new BST(5,ee,"MINHEAP");
 //        bstS.add(nB);
     }
     String[] TreeType = {"BT","BST","MINHEAP","MAXHEAP"};
-    String[] EnemyType = {"Bunny","RockSM"};
+    String[] EnemyType = {"Bunny","RockSM","RockLG","Chicken","Ghost"};
     int introTick = -50;
     int clickTarget = 0;
+    boolean rclickind = true;
     @Override
     public void update(float delta) {
         if(GameState == 9){
@@ -183,6 +204,11 @@ public class BSTPuzzle extends BasicGame {
                     Score++;
                 } else {
                     GameState = -1;
+                    //set score
+                    if(playerdata.getHighScore() < Score/20){
+                        playerdata.setHighScore(Score/20);
+                        playerdata.savePlayerData(Score/20);
+                    }
                 }
                 if (bst != null) {
                     bst.update();
@@ -196,26 +222,20 @@ public class BSTPuzzle extends BasicGame {
                         for (int i = 0; i < number; i++) {
                             String tree = TreeType[new Random().nextInt(TreeType.length)];
                             String eType = EnemyType[new Random().nextInt(EnemyType.length)];
-                            boolean location = new Random().nextBoolean();
-                            float posL = 32;
-                            if (location) {
-                                posL = GAME_WIDTH - 64;
-                            }
-                            if (player.x < 100) {
-                                posL = GAME_WIDTH - 64;
-                            }
-                            if (player.x > GAME_WIDTH - 100) {
-                                posL = 32;
-                            }
+                            float posL = -32;
                             Random rand = new Random();
-                            Enemy ee = new Enemy(posL + rand.nextInt(64 + 32 * new Random().nextInt(Math.round(Score / (20 * 50)) + 1)), -1 * rand.nextInt(200), eType);
+                            Enemy ee = new Enemy(posL + rand.nextInt(32 + 32 * new Random().nextInt(Math.round(Score / (20 * 50)) + 1)), -1 * rand.nextInt(200), eType);
                             enemies.add(ee);
-                            BST nB = new BST(3 + rand.nextInt(player.killCount + 1), ee, tree);
+                            BST nB = new BST(3 + rand.nextInt(player.killCount/2 + 1), ee, tree);
                             bstS.add(nB);
                         }
                     }
                 }
-                if (Gdx.input.isKeyJustPressed(Input.Keys.RIGHT)) {
+                if(!Gdx.input.isButtonPressed(Input.Buttons.RIGHT) && rclickind==false){
+                    rclickind = true;
+                }
+                if (Gdx.input.isButtonPressed(Input.Buttons.RIGHT) && rclickind == true) {
+                    rclickind = false;
                     if (bstS.size() > 1) {
                         int ind = bstS.indexOf(bst);
                         if (ind != -1) {
@@ -234,12 +254,14 @@ public class BSTPuzzle extends BasicGame {
                 if(playSound.isPlaying()){
                     playSound.stop();
                 }
-                if (Gdx.input.isKeyJustPressed(Input.Keys.SPACE)) {
+                if (Gdx.input.isKeyJustPressed(Input.Keys.ENTER)) {
                     Score = 0;
                     GameState = 1;
                     bst = null;
                     bstS.clear();
+                    enemies.clear();
                     chooseSound();
+                    goal = new Goal(GAME_WIDTH/2-32,GAME_HEIGHT-64);
                     player = new Player(playerTexture, GAME_WIDTH / 2, GAME_HEIGHT / 2);
                 }
             }
@@ -284,17 +306,22 @@ public class BSTPuzzle extends BasicGame {
                 }
             }
             if(GameState==0){
+                //g.drawTexture(numberUI.get(0),GAME_WIDTH/2,GAME_HEIGHT-100);
                 //g.drawString("CLICK TO PLAY",GAME_WIDTH/2,GAME_HEIGHT/2);
             }
             else if(GameState==1){
-                g.drawString(String.valueOf((int)Score/20),0,64);
+                //g.drawString(String.valueOf((int)Score/20),0,64);
+                displayScore(Score/20,g,16,16,"left");
                 if(bst != null){
                     bst.render(g);
                 }
             }
             else if(GameState==-1){
-                g.drawString("Press Space To Play Again",GAME_WIDTH/2,GAME_HEIGHT/2);
-                g.drawString("Your Score "+String.valueOf((int)Score/20),GAME_WIDTH/2,GAME_HEIGHT/2-32);
+                g.drawString("PRESS ENTER TO PLAY AGAIN",GAME_WIDTH/2-110,330);
+                g.drawTexture(gameOverTexture,GAME_WIDTH/2- gameOverTexture.getWidth()/2,10);
+                g.drawTexture(highscoreTexture,GAME_WIDTH/2- highscoreTexture.getWidth()/2,170);
+                displayScore(Score/20,g,GAME_WIDTH/2,90,"center");
+                displayScore(playerdata.getHighScore(),g,GAME_WIDTH/2,240,"center");
             }
             for(int i=0;i<walls.size();i++){
                 walls.get(i).render(g);
@@ -307,6 +334,9 @@ public class BSTPuzzle extends BasicGame {
             for(int i=0;i<confettis.size();i++){
                 confettis.get(i).render(g);
             }
+            if(GameState==0 || GameState==8){
+                displayScore(playerdata.getHighScore(),g,GAME_WIDTH/2,GAME_HEIGHT/2,"center");
+            }
             if(GameState==8 || GameState == 0){
                 logoMain.playerAnimation.draw(g,GAME_WIDTH/2-250,-20);
             }
@@ -317,6 +347,25 @@ public class BSTPuzzle extends BasicGame {
                     gameIntro.playerAnimation.draw(g,GAME_WIDTH/2-250,introY-20);
                 }
             }
+        }
+    }
+    public void displayScore(int score,Graphics g,float x,float y,String type){
+        String str = String.valueOf(score);
+        ArrayList<Texture> arr = new ArrayList<Texture>();
+        float wid = 0;
+        for(int i=0;i<str.length();i++){
+            Texture now = numberUI.get(Integer.parseInt(String.valueOf(str.charAt(i))));
+            arr.add(now);
+            wid += now.getWidth();
+        }
+        float w_now = 0;
+        for(int i=0;i<arr.size();i++){
+            if(type=="center"){
+                g.drawTexture(arr.get(i),x - wid/2 + w_now,y);
+            } else if (type=="left") {
+                g.drawTexture(arr.get(i),x + w_now,y);
+            }
+            w_now += arr.get(i).getWidth();
         }
     }
     public static void SpriteCollection(Enemy e){
@@ -337,6 +386,33 @@ public class BSTPuzzle extends BasicGame {
             e.eHit = new PlayerTexture("Enemies/Rocks/Rock2_Hit (32x28).png",32,28);
             e.width = 32;
             e.height = 28;
+        }
+        else if(e.type == "RockLG"){
+            e.eRun = new PlayerTexture("Enemies/Rocks/Rock1_Run (38x34).png",38,34);
+            e.eIdle = new PlayerTexture("Enemies/Rocks/Rock1_Idle (38x34).png",38,34);
+            e.eJump = new PlayerTexture("Enemies/Rocks/Rock1_Idle (38x34).png",38,34);
+            e.eFall = new PlayerTexture("Enemies/Rocks/Rock1_Idle (38x34).png",38,34);
+            e.eHit = new PlayerTexture("Enemies/Rocks/Rock1_Hit.png",38,34);
+            e.width = 38;
+            e.height = 34;
+        }
+        else if(e.type == "Chicken"){
+            e.eRun = new PlayerTexture("Enemies/Chicken/Run (32x34).png",32,34);
+            e.eIdle = new PlayerTexture("Enemies/Chicken/Idle (32x34).png",32,34);
+            e.eJump = new PlayerTexture("Enemies/Chicken/Idle (32x34).png",32,34);
+            e.eFall = new PlayerTexture("Enemies/Chicken/Idle (32x34).png",32,34);
+            e.eHit = new PlayerTexture("Enemies/Chicken/Hit (32x34).png",32,34);
+            e.width = 32;
+            e.height = 34;
+        }
+        else if(e.type == "Ghost"){
+            e.eRun = new PlayerTexture("Enemies/Ghost/Idle (44x30).png",44,30);
+            e.eIdle = new PlayerTexture("Enemies/Ghost/Idle (44x30).png",44,30);
+            e.eJump = new PlayerTexture("Enemies/Ghost/Idle (44x30).png",44,30);
+            e.eFall = new PlayerTexture("Enemies/Ghost/Idle (44x30).png",44,30);
+            e.eHit = new PlayerTexture("Enemies/Ghost/Hit (44x30).png",44,30);
+            e.width = 44;
+            e.height = 35;
         }
     }
 }

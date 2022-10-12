@@ -57,7 +57,21 @@ public class BST {
             Node node = new Node(randomNumber.get(i),nRadius*2*(i)+64,32+300,colorList.get(rand.nextInt(colorList.size())),nRadius,this.type);
             nodes.add(node);
         }
-        randomNode();
+        boolean all = true;
+        while(all == true){
+            all = true;
+            randomNode();
+            for(int i=0;i<nodes.size();i++) {
+                Node now = nodes.get(i);
+                now.checkNode();
+                if (now.isPass == false) {
+                    all = false;
+                }
+            }
+            if(all == true){
+                System.out.println("WEWER");
+            }
+        }
         generateTree();
     }
     private void generateTree(){
@@ -252,6 +266,7 @@ public class BST {
                 if(pass){
                     player.life++;
                     player.killCount++;
+                    Score+=numberNodes*100;
                 }
                 pass = false;
                 passTimer = 0;

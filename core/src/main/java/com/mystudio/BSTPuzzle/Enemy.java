@@ -17,7 +17,8 @@ public class Enemy {
     private float frameDuration = 0.025f;
     private float hsp = 0;
     private float vsp = 0;
-    private float wsp = 0.5f;
+    private float wsp = 1.6f;
+    private float ksp = 0;
     public String type = "";
 
     Texture spriteTexture;
@@ -45,6 +46,15 @@ public class Enemy {
         eIdle.playerAnimation.setLooping(true);
         eHit.playerAnimation.setLooping(true);
         eDisappear.playerAnimation.setLooping(true);
+        if(t == "Chicken"){
+            wsp = 1.8f;
+        }
+        else if(t == "Bunny"){
+            wsp = 1.7f;
+        }
+        else if(t == "Ghost"){
+            wsp = 1.9f;
+        }
     }
     public void update(float delta){
         if(isDead && deadC>=1){
@@ -82,14 +92,37 @@ public class Enemy {
             }
         }
         hsp = move * this.wsp;
+        hsp += ksp;
         if(collideWall(this.hsp,0)){
             while(!collideWall(Math.abs(hsp)/hsp,0)){
-                this.x += + Math.abs(hsp)/hsp;
+                this.x += Math.abs(hsp)/hsp;
             }
             hsp = 0;
-            if(!atPlayer){
-                jump = true;
+            if(Math.abs(ksp) > 5f){
+                ksp *= -1;
             }
+        }
+        if(Math.abs(ksp) > 3f){
+            ksp -= 0.05f*ksp;
+        }
+        else{
+            ksp = 0;
+        }
+        if(isDead){
+            hsp = 0;
+            jump = false;
+        }
+        x += hsp;
+        if(collideWall(0,1) && this.type=="Bunny"){
+            this.vsp = -20;
+            this.ksp = 1;
+        }
+        vsp += GRV;
+        if(this.vsp < 0){
+            this.playerTexture = eJump;
+        }
+        else if(this.vsp > 0){
+            this.playerTexture = eFall;
         }
         if(hsp > 0){
             this.xScale = false;
@@ -102,15 +135,6 @@ public class Enemy {
         else{
             this.playerTexture = eIdle;
         }
-        if(isDead){
-            hsp = 0;
-            jump = false;
-        }
-        x += hsp;
-        if(jump && collideWall(0,1)){
-            this.vsp = -12;
-        }
-        vsp += GRV;
         if(collideWall(0,this.vsp)){
             while(!collideWall(0,Math.abs(vsp)/vsp)){
                 this.y += Math.abs(vsp)/vsp;
@@ -160,11 +184,11 @@ public class Enemy {
                 }
             }
             this.playerTexture.playerAnimation.setFlipX(!xScale);
-            this.playerTexture.playerAnimation.draw(g,this.x-width/2,this.y-height);
+            this.playerTexture.playerAnimation.draw(g,this.x-width/2,this.y-height+1);
         }
         else{
             this.playerTexture.playerAnimation.setFlipX(!xScale);
-            this.playerTexture.playerAnimation.draw(g,this.x-width/2,this.y-height);
+            this.playerTexture.playerAnimation.draw(g,this.x-width/2,this.y-height+1);
         }
     }
 }

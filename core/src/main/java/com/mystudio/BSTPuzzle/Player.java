@@ -3,6 +3,7 @@ package com.mystudio.BSTPuzzle;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.Texture;
 import org.mini2Dx.core.geom.LineSegment;
 import org.mini2Dx.core.geom.Point;
 import org.mini2Dx.core.geom.Rectangle;
@@ -19,7 +20,7 @@ public class Player {
     public float y = 0;
     public float vsp = 0;
     public float hsp = 0;
-    public float wsp = 2;
+    public float wsp = 1.5f;
     private float destX = GAME_WIDTH;
     private float destY = 300;
     private float checkW = 5;
@@ -35,6 +36,7 @@ public class Player {
     PlayerTexture playerFall = new PlayerTexture("Main Characters/Ninja Frog/Fall (32x32).png",32,32);
     PlayerTexture playerHit = new PlayerTexture("Main Characters/Ninja Frog/Hit (32x32).png",32,32);
     PlayerTexture playerAppear = new PlayerTexture("Main Characters/Appearing (96x96).png",96,96);
+    Texture heart;
     public int killCount = 0;
     public Player(PlayerTexture playerTexture,float x,float y) {
         this.playerTexture = playerTexture;
@@ -42,6 +44,7 @@ public class Player {
         playerRun.playerAnimation.setLooping(true);
         playerIdle.playerAnimation.setLooping(true);
         playerHit.playerAnimation.setLooping(true);
+        heart = new Texture("UserInterface/heart.png");
         this.x = x;
         this.y = y;
     }
@@ -68,35 +71,69 @@ public class Player {
         return ee;
     }
     public void update(float delta) {
-        this.playerTexture.playerAnimation.update(delta*wsp/4);
+        this.playerTexture.playerAnimation.update(delta*wsp/3);
         boolean left = Gdx.input.isKeyPressed(Input.Keys.A);
         boolean right = Gdx.input.isKeyPressed(Input.Keys.D);
         boolean jump = Gdx.input.isKeyJustPressed(Input.Keys.SPACE);
-        float move = (right? 1:0) - (left? 1: 0);
+        float move;
+        move = (right? 1:0) - (left? 1: 0);
+        if(move == 0 && GameState==1){
+            move = 1;
+        }
         //destination calculation
 
         boolean atDestinationX = (Math.abs(this.x-this.destX)<this.checkW);
         Enemy nearest = nearestEnemy();
         boolean getReckt = false;
-        if(move == 0){
-            if(nearest != null){
-                getReckt = (Math.abs(this.x-nearest.x)<10);
-                if(!getReckt){
-                    float f = this.nearestEnemy().x-this.x;
-                    move = -1*Math.signum(f);
-                }
-            }
-            else{
-                if(!(Math.abs(this.x-goal.x-hsp-21)<5)){
-                    move = -1*Math.signum((float) this.x-goal.x-hsp-21);
-                }
-            }
-        }
+//        if(move == 0){
+//            if(nearest != null){
+//                getReckt = (Math.abs(this.x-nearest.x)<10);
+//                if(!getReckt){
+//                    float f = this.nearestEnemy().x-this.x;
+//                    move = -1*Math.signum(f);
+//                }
+//            }
+//            else{
+////                if(!(Math.abs(this.x-goal.x-hsp-21)<5)){
+////                    move = -1*Math.signum((float) this.x-goal.x-hsp-21);
+////                }
+//            }
+//        }
         hsp = move * this.wsp;
         if(life<=0 || isDead){
             this.hsp = 0;
         }
         hsp += ksp;
+            if(hsp > 0){
+                for(int i=0;i<walls.size();i++){
+                    if(walls.get(i).type == "floor"){
+                        walls.get(i).xPos -= hsp;
+                    }
+                    else{
+                        walls.get(i).x -= hsp;
+                    }
+                }
+                for(int i=0;i<enemies.size();i++){
+                    enemies.get(i).x-= hsp;
+                }
+                goal.x -= hsp;
+                player.x -= hsp;
+            }
+            else{
+                for(int i=0;i<walls.size();i++){
+                    if(walls.get(i).type == "floor"){
+                        walls.get(i).xPos -= hsp;
+                    }
+                    else{
+                        walls.get(i).x -= hsp;
+                    }
+                }
+                for(int i=0;i<enemies.size();i++){
+                    enemies.get(i).x-= hsp;
+                }
+                goal.x -= hsp;
+                player.x -= hsp;
+            }
         float preHsp = hsp;
         boolean collide = false;
         if(collideWall(this.hsp,0)){
@@ -123,7 +160,7 @@ public class Player {
 //            jump = true;
 //        }
         if(jump && collideWall(0,1) && (life>0) && !isDead){
-            this.vsp -= 15;
+            this.vsp -= 10;
         }
         vsp += GRV;
         if(collideWall(0,this.vsp)){
@@ -209,7 +246,11 @@ public class Player {
         }
         //g.setColor(Color.BROWN);
         //g.drawCircle(this.destX,this.destY,10);
-        g.drawString(String.valueOf(this.life),this.x,this.y);
+        float w = 0;
+        for(int h=0;h<this.life;h++){
+            g.drawTexture(heart,10+w,GAME_HEIGHT-42);
+            w+= heart.getWidth();
+        }
         //g.drawRect(this.x-12,this.y+32,24,32);
         playerTexture.playerAnimation.setFlipX(xScale);
         if(life<=0){

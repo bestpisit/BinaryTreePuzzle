@@ -27,7 +27,18 @@ public class Node {
         this.value = v;
         this.x = x;
         this.y = y;
-        this.color = color;
+        if(type=="BT"){
+            this.color = Color.BLACK;
+        }
+        else if (type=="BST"){
+            this.color = Color.BROWN;
+        }
+        else if (type=="MINHEAP"){
+            this.color = Color.CORAL;
+        }
+        else if (type=="MAXHEAP"){
+            this.color = Color.FIREBRICK;
+        }
         this.radius = radius;
         this.fX = x;
         this.fY = y;
@@ -35,6 +46,75 @@ public class Node {
     }
     public void update(){
 
+    }
+    public void checkNode(){
+        this.isPass = true;
+        if(this.left!=null){
+            if(this.type=="BST"){
+                int leftMax = checkNodeL(this.left);
+                if(leftMax>this.value){
+                    this.isPass = false;
+                }
+            }
+            else if(this.type=="BT"){
+                if(this.left.getValue()>this.getValue()){
+                    this.isPass = false;
+                }
+            }
+            else if(this.type=="MAXHEAP"){
+                if(this.left.getValue()>this.value){
+                    this.isPass = false;
+                }
+                if(this.right != null){
+                    if(this.left.getValue()>this.right.getValue()){
+                        this.isPass = false;
+                    }
+                }
+            }
+            else if(this.type=="MINHEAP"){
+                if(this.left.getValue()<this.value){
+                    this.isPass = false;
+                }
+                if(this.right != null){
+                    if(this.left.getValue()>this.right.getValue()){
+                        this.isPass = false;
+                    }
+                }
+            }
+        }
+        if(this.right!=null){
+            if(this.type=="BST") {
+                int rightMax = checkNodeR(this.right);
+                if (rightMax < this.value) {
+                    this.isPass = false;
+                }
+            }
+            else if(this.type=="BT"){
+                if(this.right.getValue()<this.getValue()){
+                    this.isPass = false;
+                }
+            }
+            else if(this.type=="MAXHEAP"){
+                if(this.right.getValue()>this.value){
+                    this.isPass = false;
+                }
+                if(this.left != null){
+                    if(this.left.getValue()>this.right.getValue()){
+                        this.isPass = false;
+                    }
+                }
+            }
+            else if(this.type=="MINHEAP"){
+                if(this.right.getValue()<this.value){
+                    this.isPass = false;
+                }
+                if(this.left != null){
+                    if(this.left.getValue()>this.right.getValue()){
+                        this.isPass = false;
+                    }
+                }
+            }
+        }
     }
     public void renderLine(Graphics g){
         g.setColor(Color.BLACK);
