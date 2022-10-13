@@ -328,7 +328,7 @@ public class BST {
         }
     }
     public void render(Graphics g){
-        g.drawString(this.type,0,32);
+        g.drawString(this.type,GAME_WIDTH/2 - this.type.length()*12/2,15);
         for(int i=0;i<nodes.size();i++){
             Node now = nodes.get(i);
             now.renderLine(g);

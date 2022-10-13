@@ -35,6 +35,8 @@ public class Enemy {
     private PlayerTexture playerTexture;
     boolean xScale = false;
     BST myBST = null;
+    int life = 1;
+    float strength = 1;
     Enemy(float x,float y,String t){
         this.type = t;
         SpriteCollection(this);
@@ -48,12 +50,23 @@ public class Enemy {
         eDisappear.playerAnimation.setLooping(true);
         if(t == "Chicken"){
             wsp = 1.8f;
+            strength = 1f;
         }
         else if(t == "Bunny"){
             wsp = 1.7f;
+            strength = 1.25f;
         }
         else if(t == "Ghost"){
             wsp = 1.9f;
+            strength = 0.2f;
+        }
+        else if(t == "RockLG"){
+            life = 2;
+            strength = 2f;
+        }
+        else if(t == "RockSM"){
+            life = 1;
+            strength = 1.75f;
         }
     }
     public void update(float delta){
@@ -73,19 +86,21 @@ public class Enemy {
         }
         else{
             if(!isDead){
-                isDead = true;
-                myBST.isDead = true;
+                if(--life <= 0){
+                    isDead = true;
+                    myBST.isDead = true;
+                }
                 if(myBST != bst){
                     bstS.remove(myBST);
                 }
-                player.vsp -= 10;
+                player.vsp -= 10*strength;
                 if(this.x < player.x){
                     player.xScale = true;
-                    player.ksp = 10;
+                    player.ksp = 6*strength;
                 }
                 else{
                     player.xScale = false;
-                    player.ksp = -10;
+                    player.ksp = -6*strength;
                 }
                 player.life--;
                 player.isDead = true;

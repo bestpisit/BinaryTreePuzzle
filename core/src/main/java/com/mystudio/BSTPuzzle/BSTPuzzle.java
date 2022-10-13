@@ -62,6 +62,10 @@ public class BSTPuzzle extends BasicGame {
     private static final String GAME_OVER_TEXT_LOCATION = "UserInterface/textGameOver.png";
     private static final String PRESS_SPACE_TEXT_LOCATION = "UserInterface/textPressSpace.png";
     private static final String HIGHSCORE_TEXT_LOCATION = "UserInterface/textHighscore.png";
+    Texture inform1;
+    Texture inform2;
+    Texture inform3;
+    Texture inform4;
 
     PlayerData playerdata = new PlayerData();
     public void chooseSound(){
@@ -85,6 +89,10 @@ public class BSTPuzzle extends BasicGame {
         gameOverTexture = new Texture(Gdx.files.internal(GAME_OVER_TEXT_LOCATION));
         getReadyTexture = new Texture(Gdx.files.internal(PRESS_SPACE_TEXT_LOCATION));
         highscoreTexture = new Texture(Gdx.files.internal(HIGHSCORE_TEXT_LOCATION));
+        inform1 = new Texture("Information/1.png");
+        inform2 = new Texture("Information/2.png");
+        inform3 = new Texture("Information/3.png");
+        inform4 = new Texture("Information/4.png");
         playerdata.loadPlayerData();
         for(int i=0;i<10;i++){
             numberUI.add(new Texture("UserInterface/Numbers/number"+String.valueOf(i)+".png"));
@@ -106,6 +114,9 @@ public class BSTPuzzle extends BasicGame {
         playSounds.add(Gdx.audio.newMusic(Gdx.files.internal("Intro/play2.mp3")));
         playSounds.add(Gdx.audio.newMusic(Gdx.files.internal("Intro/play3.mp3")));
         playSounds.add(Gdx.audio.newMusic(Gdx.files.internal("Intro/play4.mp3")));
+        for(int i=0;i<playSounds.size();i++){
+            playSounds.get(i).setLooping(true);
+        }
         chooseSound();
         introSound.setVolume(2f);
         introSound.play();
@@ -148,6 +159,7 @@ public class BSTPuzzle extends BasicGame {
     int introTick = -50;
     int clickTarget = 0;
     boolean rclickind = true;
+    int bef_page = 0;
     @Override
     public void update(float delta) {
         if(GameState == 9){
@@ -159,6 +171,27 @@ public class BSTPuzzle extends BasicGame {
                 else {
                     introTick = 0;
                     GameState = 8;
+                }
+            }
+        }
+        else if(GameState >= 10 && GameState <= 14){
+            if (Gdx.input.isButtonPressed(Input.Buttons.LEFT)) {
+                if(clickTarget == 0){
+                    clickTarget = 1;
+                }
+            }
+            else{
+                if(clickTarget == 1){
+                    if(GameState+1 < 14){
+                        GameState++;
+                    }
+                    else{
+                        GameState = bef_page;
+                    }
+                    clickTarget = 0;
+                }
+                else{
+                    clickTarget = 0;
                 }
             }
         }
@@ -175,20 +208,15 @@ public class BSTPuzzle extends BasicGame {
                 }
             }
             if (GameState == 0) {
-                if (Gdx.input.isButtonPressed(Input.Buttons.LEFT)) {
-                    if(clickTarget == 0){
-                        clickTarget = 1;
-                    }
+                if(Gdx.input.isKeyJustPressed(Input.Keys.I)){
+                    bef_page = GameState;
+                    GameState = 10;
+                    clickTarget = 0;
                 }
-                else{
-                    if(clickTarget == 1){
-                        GameState = 1;
-                        mainSound.stop();
-                        clickTarget = 0;
-                    }
-                    else{
-                        clickTarget = 0;
-                    }
+                if(Gdx.input.isKeyJustPressed(Input.Keys.ENTER)){
+                    GameState = 1;
+                    mainSound.stop();
+                    clickTarget = 0;
                 }
             } else if (GameState == 1) {
                 if(mainSound.isPlaying()){
@@ -254,6 +282,11 @@ public class BSTPuzzle extends BasicGame {
                 if(playSound.isPlaying()){
                     playSound.stop();
                 }
+                if(Gdx.input.isKeyJustPressed(Input.Keys.I)){
+                    bef_page = GameState;
+                    GameState = 10;
+                    clickTarget = 0;
+                }
                 if (Gdx.input.isKeyJustPressed(Input.Keys.ENTER)) {
                     Score = 0;
                     GameState = 1;
@@ -299,6 +332,20 @@ public class BSTPuzzle extends BasicGame {
                 gameIntro.playerAnimation.draw(g,GAME_WIDTH/2-250,introY);
             }
         }
+        else if(GameState >= 10 && GameState <= 14){
+            if(GameState == 10){
+                g.drawTexture(inform1,0,0);
+            }
+            else if(GameState == 11){
+                g.drawTexture(inform2,0,0);
+            }
+            else if(GameState == 12){
+                g.drawTexture(inform3,0,0);
+            }
+            else if(GameState == 13){
+                g.drawTexture(inform4,0,0);
+            }
+        }
         else{
             for(int j=-1;j<15;j++){
                 for(int i=-1;i<15;i++) {
@@ -306,6 +353,7 @@ public class BSTPuzzle extends BasicGame {
                 }
             }
             if(GameState==0){
+                //g.drawString("PRESS I for information",10, 10);
                 //g.drawTexture(numberUI.get(0),GAME_WIDTH/2,GAME_HEIGHT-100);
                 //g.drawString("CLICK TO PLAY",GAME_WIDTH/2,GAME_HEIGHT/2);
             }
@@ -318,6 +366,7 @@ public class BSTPuzzle extends BasicGame {
             }
             else if(GameState==-1){
                 g.drawString("PRESS ENTER TO PLAY AGAIN",GAME_WIDTH/2-110,330);
+                g.drawString("Press I for Information",GAME_WIDTH/2-70,355);
                 g.drawTexture(gameOverTexture,GAME_WIDTH/2- gameOverTexture.getWidth()/2,10);
                 g.drawTexture(highscoreTexture,GAME_WIDTH/2- highscoreTexture.getWidth()/2,170);
                 displayScore(Score/20,g,GAME_WIDTH/2,90,"center");
@@ -335,6 +384,8 @@ public class BSTPuzzle extends BasicGame {
                 confettis.get(i).render(g);
             }
             if(GameState==0 || GameState==8){
+                g.drawString("PRESS I for information",10, 10);
+                g.drawString("PRESSS ENTER TO PLAY GAME",GAME_WIDTH/2-110, GAME_HEIGHT/2-35);
                 displayScore(playerdata.getHighScore(),g,GAME_WIDTH/2,GAME_HEIGHT/2,"center");
             }
             if(GameState==8 || GameState == 0){
