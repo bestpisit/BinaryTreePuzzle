@@ -15,7 +15,7 @@ import static com.mystudio.BSTPuzzle.BSTPuzzle.*;
 import static com.mystudio.BSTPuzzle.BSTPuzzle.enemies;
 
 public class Player {
-    private PlayerTexture playerTexture;
+    public PlayerTexture playerTexture;
     public float x = 0;
     public float y = 0;
     public float vsp = 0;

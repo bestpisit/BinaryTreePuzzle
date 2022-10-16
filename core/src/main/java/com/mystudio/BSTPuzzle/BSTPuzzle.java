@@ -66,6 +66,7 @@ public class BSTPuzzle extends BasicGame {
     Texture inform2;
     Texture inform3;
     Texture inform4;
+    Texture informPlayer;
 
     PlayerData playerdata = new PlayerData();
     public void chooseSound(){
@@ -390,6 +391,9 @@ public class BSTPuzzle extends BasicGame {
             }
             if(GameState==8 || GameState == 0){
                 logoMain.playerAnimation.draw(g,GAME_WIDTH/2-250,-20);
+                g.setColor(Color.FOREST);
+                g.fillCircle(GAME_WIDTH/2+95+16,80+16+2,20);
+                player.playerTexture.playerAnimation.draw(g,GAME_WIDTH/2+95,80);
             }
             if(GameState == 8){
                 g.setColor(Color.WHITE);
