@@ -116,6 +116,9 @@ public class Player {
                 for(int i=0;i<enemies.size();i++){
                     enemies.get(i).x-= hsp;
                 }
+                for(int i=0;i<hearts.size();i++){
+                    hearts.get(i).x-= hsp;
+                }
                 goal.x -= hsp;
                 player.x -= hsp;
             }
@@ -130,6 +133,9 @@ public class Player {
                 }
                 for(int i=0;i<enemies.size();i++){
                     enemies.get(i).x-= hsp;
+                }
+                for(int i=0;i<hearts.size();i++){
+                    hearts.get(i).x-= hsp;
                 }
                 goal.x -= hsp;
                 player.x -= hsp;

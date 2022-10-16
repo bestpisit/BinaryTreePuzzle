@@ -27,7 +27,9 @@ public class BST {
     private Node selectN2 = null;
     boolean isDead = false;
     PlayerTexture ePointer = new PlayerTexture("point.png",64,64);
+    PlayerTexture heart = new PlayerTexture("UserInterface/heart.png",32,32);
     String type = "BT";
+    public boolean haveHeart = false;
     public BST(int n,Enemy e,String type){
         this.target = e;
         this.target.myBST = this;
@@ -264,7 +266,6 @@ public class BST {
                 confetti(root);
                 confetti(root);
                 if(pass){
-                    player.life++;
                     player.killCount++;
                     Score+=numberNodes*100;
                 }
@@ -297,6 +298,9 @@ public class BST {
                     Node node = new Node(randomNumber.get(i),nRadius*2*(i)+64,32+300,colorList.get(rand.nextInt(colorList.size())),nRadius,this.type);
                     nodes.add(node);
                 }
+                if(haveHeart){
+                    hearts.add(new Heart(GAME_WIDTH/2,64,8+rand.nextFloat()*16,-10-rand.nextFloat()*(-15)));
+                }
                 //create confetti
                 bstS.remove(bst);
                 bst = null;
@@ -328,6 +332,9 @@ public class BST {
         }
     }
     public void render(Graphics g){
+        if(haveHeart){
+            heart.playerAnimation.draw(g,GAME_WIDTH/2-16,10);
+        }
         g.drawString(this.type,GAME_WIDTH/2 - this.type.length()*12/2,15);
         for(int i=0;i<nodes.size();i++){
             Node now = nodes.get(i);

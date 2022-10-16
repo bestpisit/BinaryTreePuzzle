@@ -44,7 +44,7 @@ public class BSTPuzzle extends BasicGame {
     public static final float GRV = 0.93f;
     Checkpoint startPoint;
     public static Goal goal;
-    public static int Score = 0;
+    public static float Score = 0;
     public static int GameState = 9;
     PlayerTexture gameIntro = null;
     PlayerTexture logoMain;
@@ -69,6 +69,7 @@ public class BSTPuzzle extends BasicGame {
     Texture informPlayer;
 
     PlayerData playerdata = new PlayerData();
+    public static ArrayList<Heart> hearts = new ArrayList<Heart>();
     public void chooseSound(){
         if(playSounds.size()>0){
             playSound = playSounds.get(new Random(new Date().getTime()).nextInt(playSounds.size()));
@@ -161,6 +162,7 @@ public class BSTPuzzle extends BasicGame {
     int clickTarget = 0;
     boolean rclickind = true;
     int bef_page = 0;
+    Random rand = new Random(new Date().getTime());
     @Override
     public void update(float delta) {
         if(GameState == 9){
@@ -230,13 +232,13 @@ public class BSTPuzzle extends BasicGame {
                     playSound.play();
                 }
                 if (player.life > 0) {
-                    Score++;
+                    Score+=0.25;
                 } else {
                     GameState = -1;
                     //set score
                     if(playerdata.getHighScore() < Score/20){
-                        playerdata.setHighScore(Score/20);
-                        playerdata.savePlayerData(Score/20);
+                        playerdata.setHighScore((int) (Score/20));
+                        playerdata.savePlayerData((int) (Score/20));
                     }
                 }
                 if (bst != null) {
@@ -248,14 +250,26 @@ public class BSTPuzzle extends BasicGame {
                     } else {
                         //create awa
                         int number = 1 + new Random().nextInt(Math.round(Score / (20 * 50)) + 1);
+                        int r_heart = -1;
+                        if(number >= 2){
+                            r_heart = rand.nextInt(number);
+                        }
+                        else{
+                            if(rand.nextInt(4) == 0){
+                                r_heart = rand.nextInt(number);
+                            }
+                        }
                         for (int i = 0; i < number; i++) {
                             String tree = TreeType[new Random().nextInt(TreeType.length)];
                             String eType = EnemyType[new Random().nextInt(EnemyType.length)];
-                            float posL = -32;
+                            float posL = -16;
                             Random rand = new Random();
-                            Enemy ee = new Enemy(posL + rand.nextInt(32 + 32 * new Random().nextInt(Math.round(Score / (20 * 50)) + 1)), -1 * rand.nextInt(200), eType);
+                            Enemy ee = new Enemy(posL + rand.nextInt(48 ), -1 * rand.nextInt(200), eType);
                             enemies.add(ee);
                             BST nB = new BST(3 + rand.nextInt(player.killCount/2 + 1), ee, tree);
+                            if(i == r_heart){
+                                nB.haveHeart = true;
+                            }
                             bstS.add(nB);
                         }
                     }
@@ -315,6 +329,9 @@ public class BSTPuzzle extends BasicGame {
             for(int i=0;i<enemies.size();i++){
                 enemies.get(i).update(delta);
             }
+            for(int i=0;i<hearts.size();i++){
+                hearts.get(i).update();
+            }
         }
     }
     
@@ -360,7 +377,7 @@ public class BSTPuzzle extends BasicGame {
             }
             else if(GameState==1){
                 //g.drawString(String.valueOf((int)Score/20),0,64);
-                displayScore(Score/20,g,16,16,"left");
+                displayScore((int) (Score/20),g,16,16,"left");
                 if(bst != null){
                     bst.render(g);
                 }
@@ -370,7 +387,7 @@ public class BSTPuzzle extends BasicGame {
                 g.drawString("Press I for Information",GAME_WIDTH/2-70,355);
                 g.drawTexture(gameOverTexture,GAME_WIDTH/2- gameOverTexture.getWidth()/2,10);
                 g.drawTexture(highscoreTexture,GAME_WIDTH/2- highscoreTexture.getWidth()/2,170);
-                displayScore(Score/20,g,GAME_WIDTH/2,90,"center");
+                displayScore((int) (Score/20),g,GAME_WIDTH/2,90,"center");
                 displayScore(playerdata.getHighScore(),g,GAME_WIDTH/2,240,"center");
             }
             for(int i=0;i<walls.size();i++){
@@ -383,6 +400,9 @@ public class BSTPuzzle extends BasicGame {
             player.render(g);
             for(int i=0;i<confettis.size();i++){
                 confettis.get(i).render(g);
+            }
+            for(int i=0;i<hearts.size();i++){
+                hearts.get(i).render(g);
             }
             if(GameState==0 || GameState==8){
                 g.drawString("PRESS I for information",10, 10);
