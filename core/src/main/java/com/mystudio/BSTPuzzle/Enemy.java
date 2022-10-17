@@ -11,7 +11,7 @@ import java.awt.*;
 
 import static com.mystudio.BSTPuzzle.BSTPuzzle.*;
 
-public class Enemy {
+public class Enemy extends Object implements Physics {
     public float x;
     public float y;
     private float frameDuration = 0.025f;
@@ -76,6 +76,11 @@ public class Enemy {
         else{
             this.playerTexture.playerAnimation.update(delta/2);
         }
+        updatePhysics();
+    }
+
+    @Override
+    public void updatePhysics() {
         Rectangle rthis = new Rectangle(this.x-this.width/2,this.y-this.height,this.width,this.height);
         Rectangle rPlayer = new Rectangle(player.getX()-12,player.getY()+32,24,32);
         boolean atPlayer = rthis.intersects(rPlayer);
@@ -158,7 +163,8 @@ public class Enemy {
         }
         this.y += vsp;
     }
-    boolean collideWall(float hsp,float vsp){
+
+    public boolean collideWall(float hsp, float vsp){
         Rectangle sRect = new Rectangle(this.x-width/2+hsp,this.y-height+vsp,width,height);
         for(int i=0;i<walls.size();i++){
             Wall w = walls.get(i);

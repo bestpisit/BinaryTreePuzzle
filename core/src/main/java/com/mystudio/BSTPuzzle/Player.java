@@ -14,7 +14,7 @@ import java.util.Random;
 import static com.mystudio.BSTPuzzle.BSTPuzzle.*;
 import static com.mystudio.BSTPuzzle.BSTPuzzle.enemies;
 
-public class Player {
+public class Player extends Object implements Physics {
     public PlayerTexture playerTexture;
     public float x = 0;
     public float y = 0;
@@ -72,6 +72,12 @@ public class Player {
     }
     public void update(float delta) {
         this.playerTexture.playerAnimation.update(delta*wsp/3);
+        updatePhysics();
+    }
+    float pRotation = 0;
+
+    @Override
+    public void updatePhysics() {
         boolean left = Gdx.input.isKeyPressed(Input.Keys.A);
         boolean right = Gdx.input.isKeyPressed(Input.Keys.D);
         boolean jump = Gdx.input.isKeyJustPressed(Input.Keys.SPACE);
@@ -104,42 +110,42 @@ public class Player {
             this.hsp = 0;
         }
         hsp += ksp;
-            if(hsp > 0){
-                for(int i=0;i<walls.size();i++){
-                    if(walls.get(i).type == "floor"){
-                        walls.get(i).xPos -= hsp;
-                    }
-                    else{
-                        walls.get(i).x -= hsp;
-                    }
+        if(hsp > 0){
+            for(int i=0;i<walls.size();i++){
+                if(walls.get(i).type == "floor"){
+                    walls.get(i).xPos -= hsp;
                 }
-                for(int i=0;i<enemies.size();i++){
-                    enemies.get(i).x-= hsp;
+                else{
+                    walls.get(i).x -= hsp;
                 }
-                for(int i=0;i<hearts.size();i++){
-                    hearts.get(i).x-= hsp;
-                }
-                goal.x -= hsp;
-                player.x -= hsp;
             }
-            else{
-                for(int i=0;i<walls.size();i++){
-                    if(walls.get(i).type == "floor"){
-                        walls.get(i).xPos -= hsp;
-                    }
-                    else{
-                        walls.get(i).x -= hsp;
-                    }
-                }
-                for(int i=0;i<enemies.size();i++){
-                    enemies.get(i).x-= hsp;
-                }
-                for(int i=0;i<hearts.size();i++){
-                    hearts.get(i).x-= hsp;
-                }
-                goal.x -= hsp;
-                player.x -= hsp;
+            for(int i=0;i<enemies.size();i++){
+                enemies.get(i).x-= hsp;
             }
+            for(int i=0;i<hearts.size();i++){
+                hearts.get(i).x-= hsp;
+            }
+            goal.x -= hsp;
+            player.x -= hsp;
+        }
+        else{
+            for(int i=0;i<walls.size();i++){
+                if(walls.get(i).type == "floor"){
+                    walls.get(i).xPos -= hsp;
+                }
+                else{
+                    walls.get(i).x -= hsp;
+                }
+            }
+            for(int i=0;i<enemies.size();i++){
+                enemies.get(i).x-= hsp;
+            }
+            for(int i=0;i<hearts.size();i++){
+                hearts.get(i).x-= hsp;
+            }
+            goal.x -= hsp;
+            player.x -= hsp;
+        }
         float preHsp = hsp;
         boolean collide = false;
         if(collideWall(this.hsp,0)){
@@ -217,8 +223,8 @@ public class Player {
         x += hsp;
         this.y += vsp;
     }
-    float pRotation = 0;
-    boolean collideWall(float hsp,float vsp){
+
+    public boolean collideWall(float hsp, float vsp){
         Rectangle sRect = new Rectangle(this.x-12+hsp,this.y+32+vsp,24,32);
         for(int i=0;i<walls.size();i++){
             Wall w = walls.get(i);
